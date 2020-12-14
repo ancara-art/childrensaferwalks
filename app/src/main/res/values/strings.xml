@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Safer School Walks</string>
-    <string name="button_send">Send</string>
+    <string name="button_send">Submit</string>
     <string name="edit_message" translatable="false">First and Last Name</string>
-    <string name="textview">Ejemplo</string>
+    <string name="textView2">"Information successfully submitted \nParent name: %1$s \nLatitude: %2$.4f \nLongitude: %3$.4f \nTimestamp: %4$tr"</string>
+    <string name="location_permission_denied">Denied location</string>
+    <string name="no_location">Please turn on your location</string>
 </resources>
