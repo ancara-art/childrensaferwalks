@@ -5,4 +5,5 @@
     <string name="textView2">"Information successfully submitted \nParent name: %1$s \nLatitude: %2$.4f \nLongitude: %3$.4f \nTimestamp: %4$tr"</string>
     <string name="location_permission_denied">Denied location</string>
     <string name="no_location">Please turn on your location</string>
+    <string name="Test_git">Sample</string>
 </resources>

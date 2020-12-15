@@ -72,4 +72,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editText" />
 
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="110dp"
+        android:layout_height="32dp"
+        android:text="@string/Test_git"
+        tools:layout_editor_absoluteX="203dp"
+        tools:layout_editor_absoluteY="619dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
