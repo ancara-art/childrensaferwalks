@@ -8,9 +8,12 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,17 +21,25 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+
 //import static android.provider.AlarmClock.EXTRA_MESSAGE;
 
 public class MainActivity extends AppCompatActivity {
-
-    public static final String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
-    private static final int REQUEST_LOCATION_PERMISSION = 5;
+    
+    private static final int REQUEST_LOCATION_PERMISSION = 5; //used to identify the permission request
     Location mLastLocation;
 
     FusedLocationProviderClient mFusedLocationClient;
     TextView mLocationTextView;
     EditText editText;
+    Spinner mySpinner;
 
 
     @Override
@@ -36,10 +47,24 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         mLocationTextView = findViewById(R.id.textView2);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         editText = (EditText) findViewById(R.id.editText);
+
+        mySpinner = (Spinner) findViewById(R.id.spinner);
+
+        readSchoolsData();
+
+        ArrayList<String> listtenfirstschools = new ArrayList<>();
+        for (int i=0; i<10; i++){
+            listtenfirstschools.add(schoolsSamples.get(i).getName());
+        }
+
+        //Adapter that will call the values and will integrate the values with the spinner.
+        ArrayAdapter<String> myAdapter = new ArrayAdapter<String>(MainActivity.this,
+                android.R.layout.simple_spinner_dropdown_item, listtenfirstschools);
+        mySpinner.setAdapter(myAdapter);
+
 
         Button buttonSubmit  = findViewById(R.id.button);
         buttonSubmit.setOnClickListener(new View.OnClickListener(){
@@ -48,6 +73,49 @@ public class MainActivity extends AppCompatActivity {
                 getLocation();
             }
         });
+    }
+
+    private List<SchoolsSample> schoolsSamples = new ArrayList<>();
+
+    private void readSchoolsData() {
+        InputStream is = getResources().openRawResource(R.raw.schoolsdata);
+        BufferedReader reader = new BufferedReader(
+                new InputStreamReader(is, Charset.forName("UTF-8"))
+        );
+
+        String line = "";
+
+        try {
+            reader.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        while (true) {
+            try {
+
+                if (!((line = reader.readLine()) != null)) break;
+                    Log.d("MyActivity", "Line: " + line);
+                    //Split by ','
+                    String[] tokens = line.split(",");
+
+                    //Read the data
+                    SchoolsSample sample = new SchoolsSample();
+                    sample.setLongitude(Double.parseDouble(tokens[0]));
+                    sample.setLatitude(Double.parseDouble(tokens[1]));
+                    sample.setOsm_id(Integer.parseInt(tokens[2]));
+                    sample.setName(tokens[3]);
+                    schoolsSamples.add(sample);
+
+                    Log.d("MyActivity", "Just created: " + sample);
+
+            } catch (IOException e) {
+                Log.wtf("MyActivity", "Error reading data file on line " + line, e);
+                e.printStackTrace();
+            }
+
+        }
+
 
     }
 
@@ -68,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
                                 mLocationTextView.setText(
                                         getString(R.string.textView2,
                                                 editText.getText().toString(),
+                                                mySpinner.getSelectedItem().toString(),
                                                 mLastLocation.getLatitude(),
                                                 mLastLocation.getLongitude(),
                                                 mLastLocation.getTime()));
