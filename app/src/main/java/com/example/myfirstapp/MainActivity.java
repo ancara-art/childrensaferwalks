@@ -26,13 +26,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-//import static android.provider.AlarmClock.EXTRA_MESSAGE;
 
 public class MainActivity extends AppCompatActivity {
-    
+
     private static final int REQUEST_LOCATION_PERMISSION = 5; //used to identify the permission request
     Location mLastLocation;
 
@@ -40,6 +41,10 @@ public class MainActivity extends AppCompatActivity {
     TextView mLocationTextView;
     EditText editText;
     Spinner mySpinner;
+    double latitude;
+    double longitude;
+    Long ts;
+    private List<SchoolsSample> schoolsSamples = new ArrayList<>();
 
 
     @Override
@@ -55,16 +60,47 @@ public class MainActivity extends AppCompatActivity {
 
         readSchoolsData();
 
-        ArrayList<String> listtenfirstschools = new ArrayList<>();
-        for (int i=0; i<10; i++){
-            listtenfirstschools.add(schoolsSamples.get(i).getName());
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]
+                            {Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_LOCATION_PERMISSION);
+        } else {
+            mFusedLocationClient.getLastLocation().addOnSuccessListener(
+                    new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            if (location != null) {
+                                System.out.println("success");
+                                mLastLocation = location;
+                                latitude = mLastLocation.getLatitude();
+                                longitude = mLastLocation.getLongitude();
+                                ts = mLastLocation.getTime();
+
+                                ArrayList<SchoolsSample> nearSchools;
+                                nearSchools = getNearSchools(schoolsSamples);
+
+                                ArrayList<String> nearSchoolsNames = new ArrayList<>();
+
+                                nearSchoolsNames.add("Select a school...");
+
+                                for (SchoolsSample school: nearSchools){
+                                    nearSchoolsNames.add(school.getName()+String.format(" (%.2f km)", school.distance));
+                                }
+
+                                //Adapter that will call the values and will integrate the values with the spinner.
+                                ArrayAdapter<String> myAdapter = new ArrayAdapter<String>(MainActivity.this,
+                                        android.R.layout.simple_spinner_dropdown_item, nearSchoolsNames);
+                                mySpinner.setAdapter(myAdapter);
+
+                            } else {
+                                mLocationTextView.setText(R.string.no_location);
+                            }
+                        }
+                    });
+
         }
-
-        //Adapter that will call the values and will integrate the values with the spinner.
-        ArrayAdapter<String> myAdapter = new ArrayAdapter<String>(MainActivity.this,
-                android.R.layout.simple_spinner_dropdown_item, listtenfirstschools);
-        mySpinner.setAdapter(myAdapter);
-
 
         Button buttonSubmit  = findViewById(R.id.button);
         buttonSubmit.setOnClickListener(new View.OnClickListener(){
@@ -75,7 +111,23 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private List<SchoolsSample> schoolsSamples = new ArrayList<>();
+
+    private ArrayList<SchoolsSample> getNearSchools(List<SchoolsSample> schoolsSamples) {
+        ArrayList<Double> schoolsDistance = new ArrayList<>();
+        ArrayList<SchoolsSample> nearSchools = new ArrayList<>();
+        for (SchoolsSample school: schoolsSamples) {
+            school.haversineFormula(longitude, latitude);
+            schoolsDistance.add(school.distance);
+        }
+
+        ArrayList<Double> schoolsDistanceSorted = new ArrayList<>(schoolsDistance);
+        Collections.sort(schoolsDistanceSorted);
+        for (int i = 0; i < 15; i++) {
+            int idx = schoolsDistance.indexOf(schoolsDistanceSorted.get(i));
+            nearSchools.add(schoolsSamples.get(idx));
+        }
+        return nearSchools;
+    }
 
     private void readSchoolsData() {
         InputStream is = getResources().openRawResource(R.raw.schoolsdata);
@@ -95,7 +147,6 @@ public class MainActivity extends AppCompatActivity {
             try {
 
                 if (!((line = reader.readLine()) != null)) break;
-                    Log.d("MyActivity", "Line: " + line);
                     //Split by ','
                     String[] tokens = line.split(",");
 
@@ -107,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
                     sample.setName(tokens[3]);
                     schoolsSamples.add(sample);
 
-                    Log.d("MyActivity", "Just created: " + sample);
+//                    Log.d("MyActivity", "Just created: " + sample);
 
             } catch (IOException e) {
                 Log.wtf("MyActivity", "Error reading data file on line " + line, e);
@@ -115,38 +166,16 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
-
-
     }
 
+    //TODO: We need to modify this method to add the logic to sent the information (parent name, School, latitude, longitude and time stamp) to the database.
     public void getLocation(){
-        if (ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]
-                            {Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_LOCATION_PERMISSION);
-        } else {
-            mFusedLocationClient.getLastLocation().addOnSuccessListener(
-                    new OnSuccessListener<Location>() {
-                        @Override
-                        public void onSuccess(Location location) {
-                            if (location != null) {
-                                mLastLocation = location;
-                                mLocationTextView.setText(
-                                        getString(R.string.textView2,
-                                                editText.getText().toString(),
-                                                mySpinner.getSelectedItem().toString(),
-                                                mLastLocation.getLatitude(),
-                                                mLastLocation.getLongitude(),
-                                                mLastLocation.getTime()));
-                            } else {
-                                mLocationTextView.setText(R.string.no_location);
-                            }
-                        }
-            });
-
-        }
+        mLocationTextView.setText(getString(R.string.textView2,
+                editText.getText().toString(),
+                mySpinner.getSelectedItem().toString(),
+                latitude,
+                longitude,
+                ts));
         mLocationTextView.setVisibility(View.VISIBLE);
     }
 
