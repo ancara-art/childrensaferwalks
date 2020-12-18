@@ -5,6 +5,7 @@ public class SchoolsSample {
     private double latitude;
     private int osm_id;
     private String name;
+    public double distance;
 
     public double getLongitude() {
         return longitude;
@@ -47,4 +48,16 @@ public class SchoolsSample {
                 ", name='" + name + '\'' +
                 '}';
     }
+
+    // The haversine formula determines the great-circle distance between two points on a sphere
+    // given the longitudes and latitudes.
+    public void haversineFormula(double longitude, double latitude) {
+/*        this.distance = Math.pow(Math.pow(this.longitude - longitude, 2) +
+                                 Math.pow(this.latitude - latitude, 2), 0.5);*/
+
+        this.distance = 6371*Math.acos(Math.cos(Math.toRadians(90-latitude))*
+                Math.cos(Math.toRadians(90-this.latitude))+Math.sin(Math.toRadians(90-latitude))*
+                Math.sin(Math.toRadians(90-this.latitude))*Math.cos(Math.toRadians(longitude-this.longitude)));
+    }
+
 }
