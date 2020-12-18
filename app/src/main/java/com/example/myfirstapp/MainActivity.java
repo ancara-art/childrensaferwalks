@@ -17,6 +17,8 @@ import android.widget.Toast;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 //import static android.provider.AlarmClock.EXTRA_MESSAGE;
 
@@ -29,6 +31,9 @@ public class MainActivity extends AppCompatActivity {
     FusedLocationProviderClient mFusedLocationClient;
     TextView mLocationTextView;
     EditText editText;
+    DatabaseReference reff;
+    RegisteredParents Rp;
+
 
 
     @Override
@@ -36,16 +41,29 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Toast.makeText(MainActivity.this, "Firebase connection Success", Toast.LENGTH_LONG).show();
 
         mLocationTextView = findViewById(R.id.textView2);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         editText = (EditText) findViewById(R.id.editText);
 
         Button buttonSubmit  = findViewById(R.id.button);
+        Rp = new RegisteredParents();
+        reff = FirebaseDatabase.getInstance().getReference().child("RegisteredParents");
+
+
         buttonSubmit.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
                 getLocation();
+
+                Float location = Float.parseFloat(mLocationTextView.getText().toString().trim());
+                Rp.setName(editText.getText().toString().trim());
+                Rp.setLocation(location);
+
+                reff.push().setValue(Rp);
+                Toast.makeText(MainActivity.this, "Data inserted Successfully", Toast.LENGTH_LONG).show();
+
             }
         });
 

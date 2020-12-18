@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "165017858807",
+    "project_id": "childrensaferwalk",
+    "storage_bucket": "childrensaferwalk.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:165017858807:android:a57831b84e0937101559f2",
+        "android_client_info": {
+          "package_name": "com.example.myfirstapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "165017858807-23g8106ql7l977tvshonfpa3ped59jtj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB4ZEVcNWdzmKxdG57RcBmCqHIMzXCEmLw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "165017858807-23g8106ql7l977tvshonfpa3ped59jtj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
