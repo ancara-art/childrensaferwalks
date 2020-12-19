@@ -15,11 +15,11 @@ public class RegisteredParents {
         Name = name;
     }
 
-    public Float getLocation() {
+    public Double getLocation() {
         return Location;
     }
 
-    public void setLocation(Float location) {
+    public void setLocation(Double location) {
         Location = location;
 
     }

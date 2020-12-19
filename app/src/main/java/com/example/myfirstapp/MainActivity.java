@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 getLocation();
 
-                Float location = Float.parseFloat(mLocationTextView.getText().toString().trim());
+                Double location = Double.parseDouble(mLocationTextView.getText().toString().trim());
                 Rp.setName(editText.getText().toString().trim());
                 Rp.setLocation(location);
 
