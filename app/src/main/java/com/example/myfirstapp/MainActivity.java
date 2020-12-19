@@ -20,13 +20,16 @@ import android.widget.Toast;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.sql.Timestamp;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -57,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
         editText = (EditText) findViewById(R.id.editText);
 
         mySpinner = (Spinner) findViewById(R.id.spinner);
-
+        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference().child("RegisteredParents");
         readSchoolsData();
 
         if (ActivityCompat.checkSelfPermission(this,
@@ -83,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
 
                                 ArrayList<String> nearSchoolsNames = new ArrayList<>();
 
-                                nearSchoolsNames.add("Select a school...");
+                                nearSchoolsNames.add("Select a school.");
 
                                 for (SchoolsSample school: nearSchools){
                                     nearSchoolsNames.add(school.getName()+String.format(" (%.2f km)", school.distance));
@@ -106,7 +109,16 @@ public class MainActivity extends AppCompatActivity {
         buttonSubmit.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
+
                 getLocation();
+                RegisteredParents registeredParent = new RegisteredParents();
+                registeredParent.setName(editText.getText().toString().trim());
+                registeredParent.setSchoolName(mySpinner.getSelectedItem().toString());
+                registeredParent.setLocation(mLastLocation.getLatitude()+","+mLastLocation.getLongitude());
+                System.out.println("test------->"+registeredParent.getLocation());
+                dbRef.push().setValue(registeredParent);
+
+                Toast.makeText(MainActivity.this, "Data inserted successfully", Toast.LENGTH_LONG).show();
             }
         });
     }
