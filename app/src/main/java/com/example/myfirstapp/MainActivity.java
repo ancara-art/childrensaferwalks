@@ -31,10 +31,6 @@ public class MainActivity extends AppCompatActivity {
     FusedLocationProviderClient mFusedLocationClient;
     TextView mLocationTextView;
     EditText editText;
-    DatabaseReference reff;
-    RegisteredParents Rp;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,8 +44,8 @@ public class MainActivity extends AppCompatActivity {
         editText = (EditText) findViewById(R.id.editText);
 
         Button buttonSubmit  = findViewById(R.id.button);
-        Rp = new RegisteredParents();
-        reff = FirebaseDatabase.getInstance().getReference().child("RegisteredParents");
+        RegisteredParents registeredParent = new RegisteredParents();
+        DatabaseReference  dbRef = FirebaseDatabase.getInstance().getReference().child("RegisteredParents");
 
 
         buttonSubmit.setOnClickListener(new View.OnClickListener(){
@@ -57,11 +53,12 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 getLocation();
 
-                Double location = Double.parseDouble(mLocationTextView.getText().toString().trim());
-                Rp.setName(editText.getText().toString().trim());
-                Rp.setLocation(location);
+               // Double location = Double.parseDouble(mLocationTextView.getText().toString().trim());
+                registeredParent.setName(editText.getText().toString().trim());
+                registeredParent.setLocation(0.2);
+                //Rp.setLocation(location);
 
-                reff.push().setValue(Rp);
+                dbRef.push().setValue(registeredParent);
                 Toast.makeText(MainActivity.this, "Data inserted Successfully", Toast.LENGTH_LONG).show();
 
             }

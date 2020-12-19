@@ -1,26 +1,22 @@
 package com.example.myfirstapp;
 
 public class RegisteredParents {
-    private String Name;
-    private  Double Location;
-
-    public RegisteredParents() {
-    }
+    private String name;
+    private String location;
 
     public String getName() {
-        return Name;
+        return name;
     }
 
     public void setName(String name) {
-        Name = name;
+        this.name = name;
     }
 
     public Double getLocation() {
-        return Location;
+        return location;
     }
 
     public void setLocation(Double location) {
-        Location = location;
-
+        this.location = location;
     }
 }
