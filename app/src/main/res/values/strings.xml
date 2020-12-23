@@ -2,7 +2,7 @@
     <string name="app_name">Safer School Walks</string>
     <string name="button_send">Submit</string>
     <string name="edit_message" translatable="false">First and Last Name</string>
-    <string name="textView2">"Information successfully retrieved \nParent name: %1$s \nSchool name: %2$s \nLatitude: %3$.13f \nLongitude: %4$.13f \nTimestamp: %5$tr"</string>
+    <string name="textView2">"Inserted Data \nParent name: %1$s \nParent's Latitude: %2$.13f \nParent's Longitude: %3$.13f \nSchool Name: %4$s \nRegistration Time: %5$td, %5$tb, %5$tY, %5$tR"</string>
     <string name="location_permission_denied">Access denied</string>
     <string name="no_location">Please turn on your location</string>
 </resources>
