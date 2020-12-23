@@ -67,7 +67,7 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
-        android:text="By submitting the form you are sending this information to our cloud, including your geographic location and you are accepting to be contacted by other parents using the Safer School Walks application."
+        android:text="By submitting you are sending this information to our database, including your geographic location and you are accepting to be contacted by other parents using Safer School Walks application."
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
