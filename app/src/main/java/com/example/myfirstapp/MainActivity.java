@@ -46,9 +46,6 @@ public class MainActivity extends AppCompatActivity {
     TextView mLocationTextView;
     EditText editText;
     Spinner mySpinner;
-    double latitude;
-    double longitude;
-    Long ts;
     private List<SchoolsSample> schoolsSamples = new ArrayList<>();
     //HashMap for school names and school's ids
     HashMap<String, Integer> schoolsIds = new HashMap<>();
@@ -67,34 +64,11 @@ public class MainActivity extends AppCompatActivity {
         DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference().child("RegisteredParents");
         readSchoolsData();
 
-        if (ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]
-                            {Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_LOCATION_PERMISSION);
-        } else {
-            mFusedLocationClient.getLastLocation().addOnSuccessListener(
-                    new OnSuccessListener<Location>() {
-                        @Override
-                        public void onSuccess(Location location) {
-                            if (location != null) {
-                                System.out.println("success");
-                                mLastLocation = location;
-
-                                ArrayList<String> nearSchoolsNames = new ArrayList<>();
-                                nearSchoolsNames.add("Select a school...");
-                                ArrayAdapter<String> myAdapter = new ArrayAdapter<String>(MainActivity.this,
-                                        android.R.layout.simple_spinner_dropdown_item, nearSchoolsNames);
-                                mySpinner.setAdapter(myAdapter);
-                            } else {
-                                mLocationTextView.setText(R.string.no_location);
-                            }
-                        }
-                    });
-
-        }
-
+        ArrayList<String> nearSchoolsNames = new ArrayList<>();
+        nearSchoolsNames.add("Select a school...");
+        ArrayAdapter<String> myAdapter = new ArrayAdapter<String>(MainActivity.this,
+                android.R.layout.simple_spinner_dropdown_item, nearSchoolsNames);
+        mySpinner.setAdapter(myAdapter);
 
         mySpinner.setOnTouchListener(new View.OnTouchListener() {
             /**
@@ -108,10 +82,8 @@ public class MainActivity extends AppCompatActivity {
             public boolean onTouch(View view, MotionEvent event) {
                 //We implemented this MotionEvent.ACTION_UP with help of
                 // next tutorial https://www.manongdao.com/q-75314.html
+                getLocation();
                 if (event.getAction() == MotionEvent.ACTION_UP) {
-                    latitude = mLastLocation.getLatitude();
-                    longitude = mLastLocation.getLongitude();
-                    ts = mLastLocation.getTime();
                     ArrayList<SchoolsSample> nearSchools;
                     nearSchools = getNearSchools(schoolsSamples);
 
@@ -144,8 +116,8 @@ public class MainActivity extends AppCompatActivity {
              */
             @Override
             public void onClick(View view) {
-
                 getLocation();
+                printInformation();
                 RegisteredParents registeredParent = new RegisteredParents();
                 registeredParent.setParentName(editText.getText().toString().trim());
                 registeredParent.setSchoolId(schoolsIds.get(mySpinner.getSelectedItem().toString()));
@@ -156,6 +128,47 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Data inserted successfully", Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_LOCATION_PERMISSION:
+                // If the permission is granted, get the location,
+                // otherwise, show a Toast "Access Denied"
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    getLocation();
+                } else {
+                    Toast.makeText(this,
+                            R.string.location_permission_denied,
+                            Toast.LENGTH_SHORT).show();
+                }
+                break;
+        }
+    }
+
+    private void getLocation() {
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]
+                            {Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_LOCATION_PERMISSION);
+        } else {
+        mFusedLocationClient.getLastLocation().addOnSuccessListener(
+                new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        if (location != null) {
+                            mLastLocation = location;
+                        } else {
+                            mLocationTextView.setText(R.string.no_location);
+                        }
+                    }
+                });
+        }
     }
 
 
@@ -171,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<Double> schoolsDistance = new ArrayList<>();
         ArrayList<SchoolsSample> nearSchools = new ArrayList<>();
         for (SchoolsSample school: schoolsSamples) {
-            school.haversineFormula(longitude, latitude);
+            school.haversineFormula(mLastLocation.getLongitude(), mLastLocation.getLatitude());
             schoolsDistance.add(school.distance);
         }
 
@@ -230,32 +243,15 @@ public class MainActivity extends AppCompatActivity {
      * the editText component, the school name selected in myspinner component, Latitude and Longitud
      * obtained
      */
-    public void getLocation(){
+    public void printInformation(){
         mLocationTextView.setText(getString(R.string.textView2,
                 editText.getText().toString(),
                 mySpinner.getSelectedItem().toString(),
-                latitude,
-                longitude,
-                ts));
+                mLastLocation.getLatitude(),
+                mLastLocation.getLongitude(),
+                mLastLocation.getTime()));
         mLocationTextView.setVisibility(View.VISIBLE);
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_LOCATION_PERMISSION:
-                // If the permission is granted, get the location,
-                // otherwise, show a Toast
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    getLocation();
-                } else {
-                    Toast.makeText(this,
-                            R.string.location_permission_denied,
-                            Toast.LENGTH_SHORT).show();
-                }
-                break;
-        }
-    }
+
 }
