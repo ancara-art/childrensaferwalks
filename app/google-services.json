@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "283684863019",
+    "firebase_url": "https://safer-walks-default-rtdb.firebaseio.com",
+    "project_id": "safer-walks",
+    "storage_bucket": "safer-walks.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:283684863019:android:36ee0963a6bc52ebd97e6e",
+        "android_client_info": {
+          "package_name": "com.example.myfirstapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "283684863019-4g32ddtatvufbfs95i30ansbnb4839i2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVW8r3tH4w9ACJHUU-1QPsdYcJEbjz56E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "283684863019-4g32ddtatvufbfs95i30ansbnb4839i2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
