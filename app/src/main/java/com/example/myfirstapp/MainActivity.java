@@ -5,9 +5,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -61,11 +63,14 @@ public class MainActivity extends AppCompatActivity {
         editText = (EditText) findViewById(R.id.editText);
         mySpinner = (Spinner) findViewById(R.id.spinner);
 
+
+        getLocation(); // This is for checking that the user has permissions in the app start up.
+
         DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference().child("RegisteredParents");
         readSchoolsData();
 
         ArrayList<String> nearSchoolsNames = new ArrayList<>();
-        nearSchoolsNames.add("Select a school...");
+        nearSchoolsNames.add("Select school...");
         ArrayAdapter<String> myAdapter = new ArrayAdapter<String>(MainActivity.this,
                 android.R.layout.simple_spinner_dropdown_item, nearSchoolsNames);
         mySpinner.setAdapter(myAdapter);
@@ -116,39 +121,61 @@ public class MainActivity extends AppCompatActivity {
              */
             @Override
             public void onClick(View view) {
-                getLocation();
-                printInformation();
-                RegisteredParents registeredParent = new RegisteredParents();
-                registeredParent.setParentName(editText.getText().toString().trim());
-                registeredParent.setSchoolId(schoolsIds.get(mySpinner.getSelectedItem().toString()));
-                registeredParent.setUserLocation(mLastLocation.getLatitude()+","+mLastLocation.getLongitude());
-                registeredParent.setTimeRegistration(mLastLocation.getTime());
-                System.out.println("test------->"+registeredParent.getUserLocation());
-                dbRef.push().setValue(registeredParent);
-                Toast.makeText(MainActivity.this, "Data inserted successfully", Toast.LENGTH_LONG).show();
+                //Validate required fields: name (editText) and school (mySpinner).
+                if(TextUtils.isEmpty(editText.getText())){
+                    editText.setError( "Name is required!" );
+                }else if(mySpinner.getSelectedItem().toString()=="Select school..."){
+                    ((TextView)mySpinner.getSelectedView()).setError("Error message");
+                }
+                else{
+                    getLocation();
+                    printInformation();
+                    RegisteredParents registeredParent = new RegisteredParents();
+                    registeredParent.setParentName(editText.getText().toString().trim());
+                    registeredParent.setSchoolId(schoolsIds.get(mySpinner.getSelectedItem().toString()));
+                    registeredParent.setUserLocation(mLastLocation.getLatitude()+","+mLastLocation.getLongitude());
+                    registeredParent.setTimeRegistration(mLastLocation.getTime());
+                    System.out.println("test------->"+registeredParent.getUserLocation());
+                    dbRef.push().setValue(registeredParent);
+                    Toast.makeText(MainActivity.this, "Data inserted successfully", Toast.LENGTH_LONG).show();
+                }
             }
         });
     }
 
+    /**
+     * The onRequestPermissionResult method is triggered by the callback that is requesting the permissions.
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case REQUEST_LOCATION_PERMISSION:
                 // If the permission is granted, get the location,
-                // otherwise, show a Toast "Access Denied"
+                // otherwise, show a Toast "Access Denied" (not visible right now, app closes if permissions are denied)
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     getLocation();
                 } else {
-                    Toast.makeText(this,
-                            R.string.location_permission_denied,
-                            Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.location_permission_denied, Toast.LENGTH_SHORT).show();
+//                    TODO: When Denying permissions, the application should not close, instead
+//                          the permissions should be checked when clicking on the spinner.  The
+//                          permissions are currently checked in the spinner but the app crashes in
+//                          the onclick action (presumably for running parallel callbacks).
+//                  The first and second code lines, are for closing the application when the permissions are denied.
+                    MainActivity.this.finish(); // 1. See comment above.
+                    System.exit(0); // 2. See comment above.
                 }
                 break;
         }
     }
 
+    /**
+     * The getLocation method, checks if the application has permissions to access the user's location.
+     * In addition triggers a callback (onRequestPermissionsResult) to request the permissions.
+     */
     private void getLocation() {
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
@@ -239,19 +266,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * This getLocation method is for printing in the textView2 component the parent name gotten from
+     * This printInformation method is for printing in the textView2 component the parent name gotten from
      * the editText component, the school name selected in myspinner component, Latitude and Longitud
-     * obtained
+     * obtained from the mLastLocation object.
      */
     public void printInformation(){
         mLocationTextView.setText(getString(R.string.textView2,
                 editText.getText().toString(),
-                mySpinner.getSelectedItem().toString(),
                 mLastLocation.getLatitude(),
                 mLastLocation.getLongitude(),
+                mySpinner.getSelectedItem().toString(),
                 mLastLocation.getTime()));
         mLocationTextView.setVisibility(View.VISIBLE);
     }
-
-
 }
